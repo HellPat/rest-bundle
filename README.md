@@ -73,8 +73,8 @@ namespace App\Controller;
 
 use App\Exception\AuthenticationFailedException;
 use App\DTO\Order;
-use App\DTO\Ok;
 use App\DTO\User;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class OrderController
@@ -104,19 +104,27 @@ class OrderController
      * @param Order[] $orders
      */
     #[Route('/orders/create', methods: ['POST'], name: 'create_orders')]
-    public function createOrders(Order ...$orders): Ok
+    public function createOrders(Order ...$orders): Response
     {
          // create orders
 
-        return Ok::new();
+        return new Response('Success!', Response::HTTP_CREATED);
     }
 
     #[Route('/order/create', methods: ['POST'], name: 'create_order')]
-    public function createOrder(Order $order): Ok
+    public function createOrder(Order $order): Order
     {
-        // create order
+        try {
+            $this->orderRepository->create($order);
+        } catch (InvalidOrder $e) {
+            // you can also handle exceptions using violines/rest-bundle
+            // add #[Violines\RestBundle\HttpApi\HttpApi]
+            // or @Violines\RestBundle\HttpApi\HttpApi
+            // and configure the serializer to serialize it to your needs
+            return $e;
+        }
 
-        return Ok::new();
+        return $order;
     }
 }
 ```
